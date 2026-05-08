@@ -36,11 +36,29 @@ async def send_otp(
 ):
     """
     Send a 6-digit OTP to the given phone number via WhatsApp.
+    Only registered members (added by admin) can receive OTPs.
     """
     if not validate_phone(body.phone):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid phone number format. Use E.164 format (e.g. +919876543210)",
+        )
+
+    # Check if this phone number belongs to a registered member
+    result = await db.execute(
+        select(User).where(User.phone == body.phone)
+    )
+    existing_user = result.scalar_one_or_none()
+    if existing_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This number is not registered. Contact Sigmaflux Support.",
+        )
+
+    if not existing_user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your account has been deactivated. Contact admin.",
         )
 
     # Dev bypass — skip OTP generation and WhatsApp for test phones
@@ -54,9 +72,11 @@ async def send_otp(
     # Send via WhatsApp
     sent = await whatsapp_service.send_otp(body.phone, otp_code)
     if not sent:
-        logger.warning(f"WhatsApp OTP delivery failed for {body.phone[-4:]}, OTP still stored in DB")
-        # Don't fail the request — OTP is stored, user can retry
-        # In dev, you can log the OTP for testing
+        logger.error(f"WhatsApp OTP delivery failed for {body.phone[-4:]}")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Failed to send OTP via WhatsApp. Please try again.",
+        )
 
     await db.commit()
     return SendOTPResponse(message="OTP sent")

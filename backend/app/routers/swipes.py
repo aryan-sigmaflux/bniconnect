@@ -79,7 +79,9 @@ async def record_swipe(
         background_tasks.add_task(
             whatsapp_service.send_match_notification,
             target_user.phone,
+            target_user.name,
             current_user.name,
+            current_user.phone,
         )
 
     matched_user = None

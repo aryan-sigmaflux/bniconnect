@@ -26,22 +26,27 @@ async def send_otp(phone: str, otp_code: str) -> bool:
     Send OTP via WhatsApp template message.
     Returns True if successful, False otherwise.
     """
-    # Format OTP with spaces for readability: "4 9 2 1 8 3"
-    formatted_otp = " ".join(otp_code)
-
     payload = {
         "messaging_product": "whatsapp",
         "to": phone.lstrip("+"),
         "type": "template",
         "template": {
             "name": settings.WHATSAPP_OTP_TEMPLATE,
-            "language": {"code": "en"},
+            "language": {"code": "en_US"},
             "components": [
                 {
                     "type": "body",
                     "parameters": [
-                        {"type": "text", "text": formatted_otp}
+                        {"type": "text", "text": otp_code}
                     ],
+                },
+                {
+                    "type": "button",
+                    "sub_type": "url",
+                    "index": "0",
+                    "parameters": [
+                        {"type": "text", "text": otp_code}
+                    ]
                 }
             ],
         },
@@ -61,7 +66,12 @@ async def send_otp(phone: str, otp_code: str) -> bool:
         return False
 
 
-async def send_match_notification(phone: str, matched_with_name: str) -> bool:
+async def send_match_notification(
+    phone: str,
+    user_name: str,
+    matched_with_name: str,
+    matched_with_phone: str,
+) -> bool:
     """
     Send match notification via WhatsApp template message.
     Called as a background task so it doesn't block the swipe response.
@@ -72,12 +82,14 @@ async def send_match_notification(phone: str, matched_with_name: str) -> bool:
         "type": "template",
         "template": {
             "name": settings.WHATSAPP_MATCH_TEMPLATE,
-            "language": {"code": "en"},
+            "language": {"code": "en_US"},
             "components": [
                 {
                     "type": "body",
                     "parameters": [
-                        {"type": "text", "text": matched_with_name}
+                        {"type": "text", "text": user_name},
+                        {"type": "text", "text": matched_with_name},
+                        {"type": "text", "text": matched_with_phone},
                     ],
                 }
             ],

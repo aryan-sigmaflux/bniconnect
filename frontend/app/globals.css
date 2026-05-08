@@ -34,8 +34,7 @@
 
 html,
 body {
-  height: 100%;
-  overflow: hidden;
+  width: 100%;
 }
 
 body {
@@ -61,6 +60,10 @@ button {
   background: none;
   font-family: inherit;
   color: inherit;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  touch-action: manipulation;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 input {
@@ -281,6 +284,7 @@ input {
   justify-content: center;
   background: linear-gradient(135deg, #F7ECEE 0%, #F9E9EC 35%, #FBEDEF 100%);
   padding: 24px;
+  position: relative;
 }
 
 .login-bg-pattern {
@@ -292,6 +296,7 @@ input {
 
 .login-container {
   position: relative;
+  z-index: 2;
   width: 100%;
   max-width: 380px;
   text-align: center;
