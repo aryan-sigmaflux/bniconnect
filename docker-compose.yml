@@ -40,7 +40,7 @@ services:
       dockerfile: Dockerfile.backend
     restart: unless-stopped
     ports:
-      - "127.0.0.1:8000:8000"     # localhost only — nginx proxies external traffic
+      - "127.0.0.1:8010:8000"     # localhost only — nginx proxies external traffic
     env_file:
       - ./backend/.env
     environment:
@@ -64,7 +64,7 @@ services:
         NEXT_PUBLIC_API_URL: https://connect.sigmaflux.com/api/v1
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3000:3000"     # localhost only — nginx proxies external traffic
+      - "127.0.0.1:3010:3000"     # localhost only — nginx proxies external traffic
     environment:
       NODE_ENV: production
     depends_on:
