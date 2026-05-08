@@ -1,0 +1,27 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY backend/ .
+
+# Copy migration script
+COPY scripts/run-migrations.sh /run-migrations.sh
+RUN chmod +x /run-migrations.sh
+
+# Create upload directory
+RUN mkdir -p uploads/profiles
+
+EXPOSE 8000
+
+ENTRYPOINT ["/run-migrations.sh"]

@@ -1,0 +1,76 @@
+version: "3.9"
+
+services:
+  # ── PostgreSQL ──
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sigmaconnect}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sigmaconnect_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-sigmaconnect}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5433:5432"     # bind to localhost only — not exposed to internet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sigmaconnect}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis ──
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6380:6379"     # use port 6380 externally to avoid clash with other Redis
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Backend (FastAPI) ──
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"     # localhost only — nginx proxies external traffic
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-sigmaconnect}:${POSTGRES_PASSWORD:-sigmaconnect_pass}@db:5432/${POSTGRES_DB:-sigmaconnect}
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - uploads:/app/uploads
+      - /var/www/sigmaconnect/uploads:/app/uploads   # bind mount for nginx to serve static files
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ── Frontend (Next.js) ──
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        NEXT_PUBLIC_API_URL: https://connect.sigmaflux.com/api/v1
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"     # localhost only — nginx proxies external traffic
+    environment:
+      NODE_ENV: production
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  redisdata:
+  uploads:

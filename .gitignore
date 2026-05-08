@@ -1,0 +1,29 @@
+# ── Environment files (contain secrets) ──
+.env
+.env.local
+.env.production
+backend/.env
+frontend/.env.local
+
+# ── Python ──
+__pycache__/
+*.pyc
+*.pyo
+backend/venv/
+
+# ── Node ──
+frontend/node_modules/
+frontend/.next/
+
+# ── Docker volumes ──
+pgdata/
+redisdata/
+
+# ── Uploads (managed on VPS) ──
+backend/uploads/
+
+# ── IDE ──
+.vscode/
+.idea/
+*.swp
+*.swo
