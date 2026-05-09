@@ -9,6 +9,7 @@ const navItems = [
   { href: "/admin/members", label: "Members", icon: "👥" },
   { href: "/admin/members/add", label: "Add Member", icon: "➕" },
   { href: "/admin/members/bulk", label: "Bulk Add", icon: "📁" },
+  { href: "/admin/members/bulk-images", label: "Bulk Images", icon: "🖼️" },
   { href: "/admin/reset", label: "Reset Data", icon: "🔄" },
 ];
 

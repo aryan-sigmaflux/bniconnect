@@ -7,8 +7,12 @@ import os
 import shutil
 import csv
 import io
+import zipfile
+import tempfile
 from pathlib import Path
 from typing import Annotated
+
+from rapidfuzz import fuzz, process
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy import select, delete
@@ -202,6 +206,109 @@ async def upload_member_image(
     await db.refresh(user)
 
     return AdminMemberResponse.model_validate(user)
+
+
+@router.post("/members/bulk-images")
+async def bulk_upload_images(
+    file: Annotated[UploadFile, File(...)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Bulk map images to members from a ZIP file using fuzzy matching on names."""
+    if not file.filename.endswith(".zip"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File must be a ZIP archive",
+        )
+
+    # Fetch all users
+    result = await db.execute(select(User).where(User.is_active == True))
+    users = result.scalars().all()
+    if not users:
+        raise HTTPException(status_code=400, detail="No active members found")
+
+    # Create a mapping of normalized names to users
+    user_choices = {u.id: u.name.lower().replace(" ", "") for u in users}
+
+    successful = []
+    failed = []
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        zip_path = Path(tmpdir) / "upload.zip"
+        contents = await file.read()
+        with open(zip_path, "wb") as f:
+            f.write(contents)
+
+        try:
+            with zipfile.ZipFile(zip_path, "r") as zip_ref:
+                zip_ref.extractall(tmpdir)
+        except zipfile.BadZipFile:
+            raise HTTPException(status_code=400, detail="Invalid ZIP file")
+
+        ensure_upload_dirs()
+
+        for root, _, files in os.walk(tmpdir):
+            for filename in files:
+                if filename == "upload.zip" or filename.startswith(".") or "__MACOSX" in root:
+                    continue
+
+                filepath = Path(root) / filename
+                ext = filepath.suffix.lower()
+                
+                if ext not in (".jpg", ".jpeg", ".png", ".webp"):
+                    failed.append(f"{filename}: Not a valid image format")
+                    continue
+
+                # Max size check per image (e.g. 5MB)
+                if filepath.stat().st_size > 5 * 1024 * 1024:
+                    failed.append(f"{filename}: File size exceeds 5MB")
+                    continue
+
+                base_name = filepath.stem.lower().replace(" ", "")
+                
+                # Fuzzy match
+                best_match = None
+                best_score = 0
+                for uid, uname in user_choices.items():
+                    score = fuzz.ratio(base_name, uname)
+                    if score > best_score:
+                        best_score = score
+                        best_match = uid
+
+                # Threshold for matching
+                if best_score < 80 or not best_match:
+                    failed.append(f"{filename}: No close match found (Best score: {best_score})")
+                    continue
+
+                # Find the matched user
+                matched_user = next((u for u in users if u.id == best_match), None)
+                if not matched_user:
+                    failed.append(f"{filename}: User not found after matching")
+                    continue
+
+                # Save image
+                rel_path = get_upload_path(filename)
+                full_path = Path(settings.UPLOAD_DIR) / rel_path
+                full_path.parent.mkdir(parents=True, exist_ok=True)
+                
+                shutil.copy2(filepath, full_path)
+                
+                # Delete old image if exists
+                if matched_user.profile_image:
+                    old_path = Path(settings.UPLOAD_DIR) / matched_user.profile_image
+                    if old_path.exists():
+                        old_path.unlink(missing_ok=True)
+                        
+                matched_user.profile_image = rel_path
+                successful.append(f"{filename} -> {matched_user.name}")
+
+    await db.flush()
+    await db.commit()
+
+    return {
+        "message": f"Processed {len(successful)} images successfully.",
+        "successful": successful,
+        "failed": failed,
+    }
 
 
 @router.put("/members/{member_id}", response_model=AdminMemberResponse)
