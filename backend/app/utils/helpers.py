@@ -12,6 +12,23 @@ from app.config import get_settings
 settings = get_settings()
 
 
+def normalize_phone(phone: str) -> str:
+    """
+    Normalize phone number to E.164 format.
+    Accepts: '9876543210', '+919876543210', '919876543210'
+    Returns: '+919876543210'
+    """
+    digits = re.sub(r'\D', '', phone)
+    if len(digits) == 10:
+        return f"+91{digits}"
+    if len(digits) == 12 and digits.startswith("91"):
+        return f"+{digits}"
+    # Already has + prefix
+    if phone.startswith("+") and len(digits) >= 10:
+        return f"+{digits}"
+    return phone
+
+
 def validate_phone(phone: str) -> bool:
     """Validate phone number format (E.164)."""
     pattern = r"^\+[1-9]\d{6,14}$"

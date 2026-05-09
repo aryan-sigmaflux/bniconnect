@@ -95,12 +95,18 @@ async def get_sent_likes(
     db: AsyncSession, user_id: uuid.UUID
 ) -> list[dict]:
     """Get all users that the current user has liked."""
+    # Subquery for all matches involving this user
+    matches_sub = select(Match.user_a_id).where(Match.user_b_id == user_id).union(
+        select(Match.user_b_id).where(Match.user_a_id == user_id)
+    )
+
     result = await db.execute(
         select(Swipe, User)
         .join(User, Swipe.swiped_id == User.id)
         .where(
             Swipe.swiper_id == user_id,
             Swipe.direction == SwipeDirection.LIKE,
+            ~Swipe.swiped_id.in_(matches_sub)
         )
         .order_by(Swipe.created_at.desc())
     )

@@ -35,11 +35,13 @@ export function useSwipe({ threshold = 0.15, onSwipeLeft, onSwipeRight }: UseSwi
   const [gesture, setGesture] = useState<SwipeGesture>(INITIAL);
   const startPos = useRef({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
+  const isLocked = useRef(false);
 
   const getScreenWidth = () =>
     typeof window !== "undefined" ? window.innerWidth : 400;
 
   const updateGesture = useCallback((clientX: number, clientY: number) => {
+    if (isLocked.current) return;
     const dx = clientX - startPos.current.x;
     const dy = clientY - startPos.current.y;
     const sw = getScreenWidth();
@@ -56,16 +58,19 @@ export function useSwipe({ threshold = 0.15, onSwipeLeft, onSwipeRight }: UseSwi
   }, [threshold]);
 
   const handleStart = useCallback((clientX: number, clientY: number) => {
+    if (isLocked.current) return;
     startPos.current = { x: clientX, y: clientY };
     setGesture((g) => ({ ...g, isDragging: true }));
   }, []);
 
   const handleEnd = useCallback(() => {
+    if (isLocked.current) return;
     const sw = getScreenWidth();
     const absX = Math.abs(gesture.offsetX);
 
     if (absX > sw * threshold) {
       // Confirmed swipe — animate out
+      isLocked.current = true;
       const dir = gesture.offsetX > 0 ? 1 : -1;
       setGesture((g) => ({
         ...g,
@@ -78,6 +83,7 @@ export function useSwipe({ threshold = 0.15, onSwipeLeft, onSwipeRight }: UseSwi
         if (dir > 0) onSwipeRight?.();
         else onSwipeLeft?.();
         setGesture(INITIAL);
+        isLocked.current = false;
       }, 300);
     } else {
       // Snap back
@@ -88,6 +94,8 @@ export function useSwipe({ threshold = 0.15, onSwipeLeft, onSwipeRight }: UseSwi
   // Programmatic swipe (for buttons)
   const triggerSwipe = useCallback(
     (direction: "left" | "right") => {
+      if (isLocked.current) return;
+      isLocked.current = true;
       const sw = getScreenWidth();
       const dir = direction === "right" ? 1 : -1;
       setGesture({
@@ -102,6 +110,7 @@ export function useSwipe({ threshold = 0.15, onSwipeLeft, onSwipeRight }: UseSwi
         if (direction === "right") onSwipeRight?.();
         else onSwipeLeft?.();
         setGesture(INITIAL);
+        isLocked.current = false;
       }, 350);
     },
     [onSwipeLeft, onSwipeRight]

@@ -47,13 +47,17 @@ app = FastAPI(
 )
 
 # ── CORS ──
+# Explicit origins are required when allow_credentials=True
+allow_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://192.168.1.7:3000", # Local network IP for mobile testing
+    "https://connect.sigmaflux.com",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "https://connect.sigmaflux.com",
-    ],
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

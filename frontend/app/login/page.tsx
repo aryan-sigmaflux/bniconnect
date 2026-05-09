@@ -11,22 +11,34 @@ export default function LoginPage() {
   const { sendOtp, verifyOtp } = useAuth();
 
   const [step, setStep] = useState<"phone" | "otp">("phone");
-  const [phone, setPhone] = useState("+91");
+  const [phone, setPhone] = useState("");
+  const [fullPhone, setFullPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleSendOtp = async () => {
+    console.log("handleSendOtp called with:", phone);
     setError("");
-    if (phone.length < 12) {
-      setError("Enter a valid phone number");
+    // Sanitize: keep only digits
+    const digits = phone.replace(/\D/g, "");
+    
+    if (digits.length !== 10) {
+      setError("Enter a valid 10-digit phone number");
       return;
     }
+    const phoneWithCode = `+91${digits}`;
+    console.log("Phone normalized to:", phoneWithCode);
+    setFullPhone(phoneWithCode);
     setLoading(true);
     try {
-      await sendOtp(phone);
+      console.log("Sending request to backend...");
+      const data = await sendOtp(phoneWithCode);
+      console.log("Backend response:", data);
+      // alert("OTP sent successfully!"); // Temporarily adding alert for mobile debugging
       setStep("otp");
     } catch (err: unknown) {
+      console.error("Error sending OTP:", err);
       const msg =
         err && typeof err === "object" && "response" in err
           ? (err as { response: { data: { detail: string } } }).response?.data?.detail
@@ -43,7 +55,7 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      const user = await verifyOtp(phone, code);
+      const user = await verifyOtp(fullPhone, code);
       router.push(user.is_admin ? "/admin" : "/explore");
     } catch (err: unknown) {
       const msg =
@@ -70,53 +82,69 @@ export default function LoginPage() {
           {step === "phone" ? (
             <>
               <h2>Welcome</h2>
-              <p className="login-card-desc">Enter your phone number to get started</p>
+              <p className="login-card-desc">Enter your 10-digit mobile number to get started</p>
 
               {error && <div className="form-error">{error}</div>}
 
-              <div className="form-group">
-                <label htmlFor="login-phone">Phone Number</label>
-                <input
-                  id="login-phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+919876543210"
-                  className="login-input"
-                  autoFocus
-                />
-              </div>
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  console.log("Form submitted, calling handleSendOtp...");
+                  handleSendOtp();
+                }}
+              >
+                <div className="form-group">
+                  <label htmlFor="login-phone">Phone Number</label>
+                  <input
+                    id="login-phone"
+                    type="tel"
+                    inputMode="numeric"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                    placeholder="9876543210"
+                    className="login-input"
+                    maxLength={10}
+                  />
+                </div>
 
-              <Button onClick={handleSendOtp} isLoading={loading} fullWidth size="lg">
-                Send OTP
-              </Button>
+                <Button type="submit" isLoading={loading} fullWidth size="lg">
+                  Send OTP
+                </Button>
+              </form>
             </>
           ) : (
             <>
               <h2>Verify OTP</h2>
               <p className="login-card-desc">
                 Enter the 6-digit code sent to<br />
-                <strong>{phone}</strong>
+                <strong>{fullPhone}</strong>
               </p>
 
               {error && <div className="form-error">{error}</div>}
 
-              <OtpInput
-                value={otp}
-                onChange={setOtp}
-                onComplete={(val) => handleVerifyOtp(val)}
-                disabled={loading}
-              />
-
-              <Button
-                onClick={() => handleVerifyOtp()}
-                isLoading={loading}
-                fullWidth
-                size="lg"
-                className="mt-4"
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleVerifyOtp();
+                }}
               >
-                Verify
-              </Button>
+                <OtpInput
+                  value={otp}
+                  onChange={setOtp}
+                  onComplete={(val) => handleVerifyOtp(val)}
+                  disabled={loading}
+                />
+
+                <Button
+                  type="submit"
+                  isLoading={loading}
+                  fullWidth
+                  size="lg"
+                  className="mt-4"
+                >
+                  Verify
+                </Button>
+              </form>
 
               <button
                 className="login-back"

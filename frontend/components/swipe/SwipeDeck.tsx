@@ -4,7 +4,6 @@ import { useSwipeDeck } from "@/hooks/useSwipeDeck";
 import { useSwipe } from "@/hooks/useSwipe";
 import { useSwipeStore } from "@/store/swipeStore";
 import SwipeCard from "./SwipeCard";
-import SwipeButtons from "./SwipeButtons";
 import EndOfStack from "./EndOfStack";
 import MatchAnimation from "./MatchAnimation";
 
@@ -13,7 +12,7 @@ export default function SwipeDeck() {
     useSwipeDeck();
   const { showMatch, matchedUser, dismissMatch } = useSwipeStore();
 
-  const { gesture, handlers, triggerSwipe } = useSwipe({
+  const { gesture, handlers } = useSwipe({
     onSwipeRight: () => handleSwipe("like"),
     onSwipeLeft: () => handleSwipe("reject"),
   });
@@ -49,7 +48,7 @@ export default function SwipeDeck() {
             .map((user, i) => {
               const isTop = i === 0;
               const scale = 1 - i * 0.05;
-              const translateY = i * 8;
+              const translateY = i * 12;
 
               const cardStyle: React.CSSProperties = isTop
                 ? {
@@ -79,15 +78,10 @@ export default function SwipeDeck() {
         </div>
       </div>
 
-      <SwipeButtons
-        onReject={() => triggerSwipe("left")}
-        onLike={() => triggerSwipe("right")}
-        disabled={!currentCard}
-      />
-
       {showMatch && matchedUser && (
         <MatchAnimation user={matchedUser} onDismiss={dismissMatch} />
       )}
     </>
   );
 }
+

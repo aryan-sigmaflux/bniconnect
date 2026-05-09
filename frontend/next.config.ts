@@ -1,10 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Allow local network devices (e.g. phone testing) to connect to HMR
+  allowedDevOrigins: ["http://192.168.1.7:3000"],
+
   // Production: nginx handles /api/v1/ proxying. This rewrite is for local dev only.
   async rewrites() {
     // In production, nginx handles the proxy. These rewrites are dev fallbacks.
-    const backendUrl = process.env.API_URL || "http://127.0.0.1:8000";
+    const backendUrl = process.env.API_URL || "http://localhost:8000";
     return [
       {
         source: "/api/v1/:path*",

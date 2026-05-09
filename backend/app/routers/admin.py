@@ -26,7 +26,7 @@ from app.schemas.user import (
     AdminMemberUpdate,
 )
 from app.services import cache_service
-from app.utils.helpers import ensure_upload_dirs, get_upload_path
+from app.utils.helpers import ensure_upload_dirs, get_upload_path, normalize_phone
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -52,17 +52,19 @@ async def add_member(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Add a new member."""
+    phone = normalize_phone(body.phone)
+    
     # Check if phone already exists
-    existing = await db.execute(select(User).where(User.phone == body.phone))
+    existing = await db.execute(select(User).where(User.phone == phone))
     if existing.scalar_one_or_none() is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="A member with this phone number already exists",
         )
 
-    is_admin = body.phone == settings.ADMIN_NUMBER
+    is_admin = phone == settings.ADMIN_NUMBER
     user = User(
-        phone=body.phone,
+        phone=phone,
         name=body.name,
         business_name=body.business_name,
         business_category=body.business_category,
@@ -124,6 +126,9 @@ async def bulk_add_members(
         if not name or not phone:
             errors.append(f"Row {row_num}: Missing name or number")
             continue
+        
+        # Normalize phone
+        phone = normalize_phone(phone)
             
         # Check if phone exists
         existing = await db.execute(select(User).where(User.phone == phone))
