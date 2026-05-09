@@ -1,0 +1,10 @@
+.git
+.gitignore
+.next
+node_modules
+*.md
+npm-debug.log
+.env
+.env.local
+.DS_Store
+__MACOSX
