@@ -62,9 +62,6 @@ export default function LoginPage() {
 
       <div className="login-container">
         <div className="login-header">
-          <div className="login-logo">
-            <span className="login-logo-icon">⬡</span>
-          </div>
           <h1 className="login-title">Sigma<span>connect</span></h1>
           <p className="login-subtitle">Connect with BNI members near you</p>
         </div>

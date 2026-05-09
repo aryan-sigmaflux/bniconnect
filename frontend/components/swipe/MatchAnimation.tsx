@@ -17,29 +17,9 @@ export default function MatchAnimation({ user, onDismiss }: MatchAnimationProps)
 
   return (
     <div className="match-overlay" onClick={onDismiss}>
-      {/* Floating hearts */}
-      <div className="match-confetti">
-        {Array.from({ length: 20 }).map((_, i) => (
-          <span
-            key={i}
-            className="confetti-particle"
-            style={{
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 0.5}s`,
-              animationDuration: `${2 + Math.random() * 2}s`,
-              color: ["#F53D6B", "#FF5B84", "#FFA4B6"][i % 3],
-              fontSize: `${12 + Math.random() * 16}px`,
-              opacity: 0.6,
-            }}
-          >
-            ♥
-          </span>
-        ))}
-      </div>
-
       <div className="match-content">
         <h1 className="match-title">It&apos;s a Match!</h1>
-        <p className="match-subtitle">You and {user.name} liked each other</p>
+        <p className="match-subtitle">You and {user.name} matched with each other</p>
 
         <div className="match-profiles">
           <div className="match-avatar">

@@ -13,6 +13,9 @@ export default function LikesPage() {
   const [activeTab, setActiveTab] = useState<Tab>("sent");
   const { sent, matches, matchedIds, isLoading } = useMatches();
 
+  // Filter out matched users from sent — they should only appear in Matched tab
+  const filteredSent = sent.filter(item => !matchedIds.has(item.user.id));
+
   return (
     <div className="app-shell">
       <TopBar />
@@ -23,7 +26,7 @@ export default function LikesPage() {
             onClick={() => setActiveTab("sent")}
           >
             Sent
-            {sent.length > 0 && <span className="tab-count">{sent.length}</span>}
+            {filteredSent.length > 0 && <span className="tab-count">{filteredSent.length}</span>}
           </button>
           <button
             className={`likes-tab ${activeTab === "matched" ? "active" : ""}`}
@@ -39,7 +42,7 @@ export default function LikesPage() {
             <div className="deck-spinner" />
           </div>
         ) : activeTab === "sent" ? (
-          <SentList sent={sent} matchedIds={matchedIds} />
+          <SentList sent={filteredSent} matchedIds={matchedIds} />
         ) : (
           <MatchedList matches={matches} />
         )}
