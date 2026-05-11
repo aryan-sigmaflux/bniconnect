@@ -8,7 +8,7 @@ export default function AddMemberPage() {
   const router = useRouter();
 
   const handleSubmit = async (
-    data: { name: string; phone: string; business_name: string; business_category?: string; description?: string },
+    data: { name: string; phone: string; business_name: string; business_category?: string },
     imageFile?: File
   ) => {
     const res = await api.post("/admin/members", data);

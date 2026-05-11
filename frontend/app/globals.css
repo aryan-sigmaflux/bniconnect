@@ -431,7 +431,7 @@ input {
 
 /* ── Swipe Card ── */
 .deck-container {
-  flex: 1;
+  flex: 0 1 auto;
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -439,6 +439,33 @@ input {
   max-width: 400px;
   position: relative;
   min-height: 0;
+  height: calc(100dvh - 270px);
+  max-height: 700px;
+}
+
+.swipe-hint-area {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 8px 16px 6px;
+  width: 100%;
+  max-width: 400px;
+  margin-top: auto;
+}
+
+.swipe-hint-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0 0 4px 0;
+  letter-spacing: 0.2px;
+}
+
+.swipe-credit-text {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin: 0;
+  opacity: 0.6;
 }
 
 .deck-stack {

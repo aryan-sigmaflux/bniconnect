@@ -10,7 +10,6 @@ export interface UserCard {
   name: string;
   business_name: string | null;
   business_category: string | null;
-  description: string | null;
   profile_image: string | null;
 }
 
@@ -20,7 +19,6 @@ export interface UserProfile {
   name: string;
   business_name: string | null;
   business_category: string | null;
-  description: string | null;
   profile_image: string | null;
   is_admin: boolean;
   is_active: boolean;
@@ -110,14 +108,12 @@ export interface AdminMemberCreate {
   name: string;
   business_name?: string;
   business_category?: string;
-  description?: string;
 }
 
 export interface AdminMemberUpdate {
   name?: string;
   business_name?: string;
   business_category?: string;
-  description?: string;
   phone?: string;
   is_active?: boolean;
 }
@@ -128,7 +124,6 @@ export interface AdminMemberResponse {
   name: string;
   business_name: string | null;
   business_category: string | null;
-  description: string | null;
   profile_image: string | null;
   is_admin: boolean;
   is_active: boolean;

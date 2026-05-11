@@ -78,6 +78,11 @@ export default function SwipeDeck() {
         </div>
       </div>
 
+      <div className="swipe-hint-area">
+        <p className="swipe-hint-text">Swipe right for 1-2-1 and left for not now</p>
+        <p className="swipe-credit-text">Developed by Karan Makharia - Sigmaflux</p>
+      </div>
+
       {showMatch && matchedUser && (
         <MatchAnimation user={matchedUser} onDismiss={dismissMatch} />
       )}

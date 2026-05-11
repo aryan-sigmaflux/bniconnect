@@ -4,8 +4,8 @@ import { useState, FormEvent, useRef } from "react";
 import Button from "@/components/ui/Button";
 
 interface MemberFormProps {
-  initialData?: { name: string; phone: string; business_name: string; business_category?: string; description?: string };
-  onSubmit: (data: { name: string; phone: string; business_name: string; business_category?: string; description?: string }, imageFile?: File) => Promise<void>;
+  initialData?: { name: string; phone: string; business_name: string; business_category?: string };
+  onSubmit: (data: { name: string; phone: string; business_name: string; business_category?: string }, imageFile?: File) => Promise<void>;
   isEdit?: boolean;
 }
 
@@ -14,7 +14,6 @@ export default function MemberForm({ initialData, onSubmit, isEdit = false }: Me
   const [phone, setPhone] = useState(initialData?.phone || "");
   const [businessName, setBusinessName] = useState(initialData?.business_name || "");
   const [businessCategory, setBusinessCategory] = useState(initialData?.business_category || "");
-  const [description, setDescription] = useState(initialData?.description || "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -40,12 +39,11 @@ export default function MemberForm({ initialData, onSubmit, isEdit = false }: Me
     setLoading(true);
     try {
       await onSubmit(
-        { 
-          name: name.trim(), 
-          phone: phone.trim(), 
+        {
+          name: name.trim(),
+          phone: phone.trim(),
           business_name: businessName.trim(),
-          business_category: businessCategory.trim(),
-          description: description.trim()
+          business_category: businessCategory.trim()
         },
         imageFile || undefined
       );
@@ -107,17 +105,7 @@ export default function MemberForm({ initialData, onSubmit, isEdit = false }: Me
         />
       </div>
 
-      <div className="form-group">
-        <label htmlFor="member-desc">Description</label>
-        <textarea
-          id="member-desc"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Description"
-          rows={3}
-          style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #ddd" }}
-        />
-      </div>
+
 
       <div className="form-group">
         <label>Profile Image</label>

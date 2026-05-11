@@ -15,7 +15,6 @@ class UserCard(BaseModel):
     name: str
     business_name: str | None = None
     business_category: str | None = None
-    description: str | None = None
     profile_image: str | None = None
 
     model_config = {"from_attributes": True}
@@ -29,7 +28,6 @@ class UserProfile(BaseModel):
     name: str
     business_name: str | None = None
     business_category: str | None = None
-    description: str | None = None
     profile_image: str | None = None
     is_admin: bool
     is_active: bool
@@ -49,14 +47,12 @@ class AdminMemberCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     business_name: str | None = Field(None, max_length=150)
     business_category: str | None = Field(None, max_length=100)
-    description: str | None = Field(None, max_length=500)
 
 
 class AdminMemberUpdate(BaseModel):
     name: str | None = Field(None, max_length=100)
     business_name: str | None = Field(None, max_length=150)
     business_category: str | None = Field(None, max_length=100)
-    description: str | None = Field(None, max_length=500)
     phone: str | None = Field(None, min_length=10, max_length=15)
     is_active: bool | None = None
 
@@ -67,7 +63,6 @@ class AdminMemberResponse(BaseModel):
     name: str
     business_name: str | None = None
     business_category: str | None = None
-    description: str | None = None
     profile_image: str | None = None
     is_admin: bool
     is_active: bool

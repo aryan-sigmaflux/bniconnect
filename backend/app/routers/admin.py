@@ -185,7 +185,6 @@ async def add_member(
         name=body.name,
         business_name=body.business_name,
         business_category=body.business_category,
-        description=body.description,
         is_admin=is_admin,
     )
     db.add(user)
@@ -238,7 +237,7 @@ async def bulk_add_members(
         business_name = business_name.strip()
         business_category = row.get("business category", "") or row.get("business_category", "")
         business_category = business_category.strip()
-        description = row.get("description", "").strip()
+
         
         if not name or not phone:
             errors.append(f"Row {row_num}: Missing name or number")
@@ -260,7 +259,6 @@ async def bulk_add_members(
             name=name,
             business_name=business_name if business_name else None,
             business_category=business_category if business_category else None,
-            description=description if description else None,
             is_admin=is_admin,
         )
         db.add(user)

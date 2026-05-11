@@ -55,7 +55,7 @@ export default function BulkAddPage() {
       <h1 className="admin-page-title">Bulk Add Members</h1>
       <div className="admin-form-card">
         <p style={{ marginBottom: "1rem", color: "var(--text-secondary)" }}>
-          Upload a CSV file with the following columns: <strong>name, number, business name, business category, description</strong>.
+          Upload a CSV file with the following columns: <strong>name, number, business name, business category</strong>.
         </p>
 
         {error && <div className="error-message">{error}</div>}

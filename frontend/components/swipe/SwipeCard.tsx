@@ -132,21 +132,6 @@ export default function SwipeCard({
           </p>
         )}
 
-        {/* Description left-aligned directly below category */}
-        {user.description && (
-          <div
-            className="swipe-card-desc"
-            style={{
-              marginTop: "16px",
-              width: "100%",
-              textAlign: "left",
-            }}
-          >
-            <p style={{ fontSize: "14px", color: "#333", margin: 0, lineHeight: 1.5 }}>
-              {user.description}
-            </p>
-          </div>
-        )}
       </div>
 
     </div>

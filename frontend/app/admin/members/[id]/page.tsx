@@ -23,14 +23,13 @@ export default function EditMemberPage() {
   }, [memberId]);
 
   const handleSubmit = async (
-    data: { name: string; phone: string; business_name: string; business_category?: string; description?: string },
+    data: { name: string; phone: string; business_name: string; business_category?: string },
     imageFile?: File
   ) => {
     await api.put(`/admin/members/${memberId}`, {
       name: data.name,
       business_name: data.business_name,
       business_category: data.business_category,
-      description: data.description,
     });
 
     if (imageFile) {
@@ -72,7 +71,6 @@ export default function EditMemberPage() {
             phone: member.phone,
             business_name: member.business_name || "",
             business_category: member.business_category || "",
-            description: member.description || "",
           }}
           onSubmit={handleSubmit}
         />

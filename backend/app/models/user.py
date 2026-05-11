@@ -24,7 +24,6 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     business_name: Mapped[str | None] = mapped_column(String(150), nullable=True)
     business_category: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    description: Mapped[str | None] = mapped_column(String(500), nullable=True)
     profile_image: Mapped[str | None] = mapped_column(String(300), nullable=True)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
