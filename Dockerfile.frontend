@@ -16,6 +16,8 @@ COPY frontend/ .
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
+ARG CACHEBUST=1
+
 # Set standalone output mode for Docker
 RUN npm run build
 

@@ -51,8 +51,10 @@ app = FastAPI(
 allow_origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://192.168.1.7:3000", # Local network IP for mobile testing
+    "http://192.168.1.7:3000",
     "https://connect.sigmaflux.com",
+    "https://connectapi.sigmaflux.com",
+    "https://*.vercel.app", # Allow all Vercel preview/production deployments
 ]
 
 app.add_middleware(

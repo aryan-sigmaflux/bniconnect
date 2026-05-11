@@ -55,20 +55,20 @@ services:
       redis:
         condition: service_healthy
 
-  # ── Frontend (Next.js) ──
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-      args:
-        NEXT_PUBLIC_API_URL: https://connect.sigmaflux.com/api/v1
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:3010:3000"     # localhost only — nginx proxies external traffic
-    environment:
-      NODE_ENV: production
-    depends_on:
-      - backend
+#  # ── Frontend (Next.js) ──
+#  frontend:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.frontend
+#      args:
+#        NEXT_PUBLIC_API_URL: https://connect.sigmaflux.com/api/v1
+#    restart: unless-stopped
+#    ports:
+#      - "127.0.0.1:3010:3000"     # localhost only — nginx proxies external traffic
+#    environment:
+#      NODE_ENV: production
+#    depends_on:
+#      - backend
 
 volumes:
   pgdata:
