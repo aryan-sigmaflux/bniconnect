@@ -15,7 +15,7 @@ from typing import Annotated
 from rapidfuzz import fuzz, process
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
@@ -28,6 +28,9 @@ from app.schemas.user import (
     AdminMemberCreate,
     AdminMemberResponse,
     AdminMemberUpdate,
+    MemberSwipeDetail,
+    MemberSwipeStats,
+    SwipedUserInfo,
 )
 from app.services import cache_service
 from app.utils.helpers import ensure_upload_dirs, get_upload_path, normalize_phone
@@ -48,6 +51,115 @@ async def list_members(
     )
     users = result.scalars().all()
     return [AdminMemberResponse.model_validate(u) for u in users]
+
+
+@router.get("/members/swipe-stats", response_model=list[MemberSwipeStats])
+async def member_swipe_stats(
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Return every active member with their liked / rejected counts."""
+    from sqlalchemy.orm import aliased
+    from app.models.swipe import SwipeDirection
+
+    # Sub-queries for liked and rejected counts per swiper
+    liked_sub = (
+        select(
+            Swipe.swiper_id,
+            func.count().label("liked_count"),
+        )
+        .where(Swipe.direction == SwipeDirection.LIKE)
+        .group_by(Swipe.swiper_id)
+        .subquery()
+    )
+    rejected_sub = (
+        select(
+            Swipe.swiper_id,
+            func.count().label("rejected_count"),
+        )
+        .where(Swipe.direction == SwipeDirection.REJECT)
+        .group_by(Swipe.swiper_id)
+        .subquery()
+    )
+
+    stmt = (
+        select(
+            User.id,
+            User.name,
+            User.profile_image,
+            func.coalesce(liked_sub.c.liked_count, 0).label("liked_count"),
+            func.coalesce(rejected_sub.c.rejected_count, 0).label("rejected_count"),
+        )
+        .outerjoin(liked_sub, User.id == liked_sub.c.swiper_id)
+        .outerjoin(rejected_sub, User.id == rejected_sub.c.swiper_id)
+        .where(User.is_active == True)
+        .order_by(User.name)
+    )
+
+    result = await db.execute(stmt)
+    rows = result.all()
+    return [
+        MemberSwipeStats(
+            id=r.id,
+            name=r.name,
+            profile_image=r.profile_image,
+            liked_count=r.liked_count,
+            rejected_count=r.rejected_count,
+        )
+        for r in rows
+    ]
+
+
+@router.get("/members/{member_id}/swipe-details", response_model=MemberSwipeDetail)
+async def member_swipe_details(
+    member_id: str,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Return the full swipe breakdown for a specific member."""
+    import uuid as _uuid
+    from app.models.swipe import SwipeDirection
+
+    uid = _uuid.UUID(member_id)
+
+    # Fetch the member
+    result = await db.execute(select(User).where(User.id == uid))
+    member = result.scalar_one_or_none()
+    if member is None:
+        raise HTTPException(status_code=404, detail="Member not found")
+
+    # Fetch all swipes by this member
+    swipes_result = await db.execute(
+        select(Swipe).where(Swipe.swiper_id == uid)
+    )
+    swipes = swipes_result.scalars().all()
+
+    liked_ids = {s.swiped_id for s in swipes if s.direction == SwipeDirection.LIKE}
+    rejected_ids = {s.swiped_id for s in swipes if s.direction == SwipeDirection.REJECT}
+    swiped_ids = liked_ids | rejected_ids
+
+    # Fetch all other active users
+    all_result = await db.execute(
+        select(User).where(User.is_active == True, User.id != uid)
+    )
+    all_users = all_result.scalars().all()
+
+    def to_info(u: User) -> SwipedUserInfo:
+        return SwipedUserInfo(
+            id=u.id,
+            name=u.name,
+            profile_image=u.profile_image,
+            business_name=u.business_name,
+        )
+
+    liked = [to_info(u) for u in all_users if u.id in liked_ids]
+    rejected = [to_info(u) for u in all_users if u.id in rejected_ids]
+    not_swiped = [to_info(u) for u in all_users if u.id not in swiped_ids]
+
+    return MemberSwipeDetail(
+        member=to_info(member),
+        liked=liked,
+        rejected=rejected,
+        not_swiped=not_swiped,
+    )
 
 
 @router.post("/members", response_model=AdminMemberResponse, status_code=status.HTTP_201_CREATED)

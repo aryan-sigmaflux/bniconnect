@@ -75,3 +75,28 @@ class AdminMemberResponse(BaseModel):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class MemberSwipeStats(BaseModel):
+    """Member info with aggregated swipe counts for the admin dashboard."""
+    id: uuid.UUID
+    name: str
+    profile_image: str | None = None
+    liked_count: int = 0
+    rejected_count: int = 0
+
+
+class SwipedUserInfo(BaseModel):
+    """Brief user info shown in swipe detail lists."""
+    id: uuid.UUID
+    name: str
+    profile_image: str | None = None
+    business_name: str | None = None
+
+
+class MemberSwipeDetail(BaseModel):
+    """Full swipe breakdown for a single member."""
+    member: SwipedUserInfo
+    liked: list[SwipedUserInfo] = []
+    rejected: list[SwipedUserInfo] = []
+    not_swiped: list[SwipedUserInfo] = []

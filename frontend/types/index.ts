@@ -135,3 +135,28 @@ export interface AdminMemberResponse {
   created_at: string;
   updated_at: string;
 }
+
+// ── Admin Dashboard Swipe Stats ──
+
+export interface MemberSwipeStats {
+  id: string;
+  name: string;
+  profile_image: string | null;
+  liked_count: number;
+  rejected_count: number;
+}
+
+export interface SwipedUserInfo {
+  id: string;
+  name: string;
+  profile_image: string | null;
+  business_name: string | null;
+}
+
+export interface MemberSwipeDetail {
+  member: SwipedUserInfo;
+  liked: SwipedUserInfo[];
+  rejected: SwipedUserInfo[];
+  not_swiped: SwipedUserInfo[];
+}
+
