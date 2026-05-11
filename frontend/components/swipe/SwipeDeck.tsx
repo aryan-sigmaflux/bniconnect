@@ -52,15 +52,15 @@ export default function SwipeDeck() {
 
               const cardStyle: React.CSSProperties = isTop
                 ? {
-                    transform: `translateX(${gesture.offsetX}px) translateY(${gesture.offsetY}px) rotate(${gesture.rotation}deg)`,
-                    transition: gesture.isDragging ? "none" : "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                    zIndex: 10 - i,
-                  }
+                  transform: `translateX(${gesture.offsetX}px) translateY(${gesture.offsetY}px) rotate(${gesture.rotation}deg)`,
+                  transition: gesture.isDragging ? "none" : "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                  zIndex: 10 - i,
+                }
                 : {
-                    transform: `scale(${scale}) translateY(${translateY}px)`,
-                    zIndex: 10 - i,
-                    pointerEvents: "none" as const,
-                  };
+                  transform: `scale(${scale}) translateY(${translateY}px)`,
+                  zIndex: 10 - i,
+                  pointerEvents: "none" as const,
+                };
 
               return (
                 <SwipeCard

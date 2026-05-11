@@ -38,9 +38,7 @@ export default function SwipeCard({
         flexDirection: "column",
         alignItems: "center",
         paddingTop: "40px",
-        top: "-20px",
-        bottom: "40px",
-        boxShadow: "0 20px 40px rgba(216, 0, 25, 0.15), 0 8px 16px rgba(216, 0, 25, 0.1)",
+        boxShadow: "0 10px 30px rgba(207, 6, 6, 0.25)",
       }}
       {...handlers}
     >
@@ -136,7 +134,7 @@ export default function SwipeCard({
 
         {/* Description left-aligned directly below category */}
         {user.description && (
-          <div 
+          <div
             className="swipe-card-desc"
             style={{
               marginTop: "16px",
