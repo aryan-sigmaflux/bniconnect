@@ -80,7 +80,6 @@ async def record_swipe(
                     "name": matched_user_obj.name,
                     "business_name": matched_user_obj.business_name,
                     "business_category": matched_user_obj.business_category,
-                    "description": matched_user_obj.description,
                     "profile_image": matched_user_obj.profile_image,
                 }
 
@@ -119,7 +118,6 @@ async def get_sent_likes(
                 "name": user.name,
                 "business_name": user.business_name,
                 "business_category": user.business_category,
-                "description": user.description,
                 "profile_image": user.profile_image,
             },
             "swiped_at": swipe.created_at,
@@ -158,7 +156,6 @@ async def get_matches(
                         "name": other_user.name,
                         "business_name": other_user.business_name,
                         "business_category": other_user.business_category,
-                        "description": other_user.description,
                         "profile_image": other_user.profile_image,
                     },
                     "matched_at": m.matched_at,

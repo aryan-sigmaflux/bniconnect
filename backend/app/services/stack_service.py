@@ -55,7 +55,6 @@ async def get_stack(
                 "name": user_map[uid].name,
                 "business_name": user_map[uid].business_name,
                 "business_category": user_map[uid].business_category,
-                "description": user_map[uid].description,
                 "profile_image": user_map[uid].profile_image,
             }
             for uid in cached
@@ -97,7 +96,6 @@ async def get_stack(
             "name": u.name,
             "business_name": u.business_name,
             "business_category": u.business_category,
-            "description": u.description,
             "profile_image": u.profile_image,
         }
         for u in users
