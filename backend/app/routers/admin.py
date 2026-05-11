@@ -454,24 +454,32 @@ async def delete_member(
     member_id: str,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    """Soft-delete a member (set is_active = false)."""
+    """Hard-delete a member."""
     import uuid as _uuid
 
-    result = await db.execute(select(User).where(User.id == _uuid.UUID(member_id)))
+    uid = _uuid.UUID(member_id)
+    
+    # Check if exists
+    result = await db.execute(select(User).where(User.id == uid))
     user = result.scalar_one_or_none()
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
 
-    user.is_active = False
+    # Delete related swipes first (to avoid foreign key constraints if any)
+    await db.execute(delete(Swipe).where((Swipe.swiper_id == uid) | (Swipe.swiped_id == uid)))
+    
+    # Delete the user
+    await db.execute(delete(User).where(User.id == uid))
     await db.flush()
 
     # Remove from all liked_me caches
-    await cache_service.remove_user_from_liked_me(str(user.id))
+    await cache_service.remove_user_from_liked_me(str(uid))
+    await cache_service.flush_all_stacks_and_likes() # Safer to flush stacks as deleted user might be in them
 
     await db.commit()
 
-    logger.info(f"Admin soft-deleted member {user.name} ({member_id})")
-    return {"message": f"Member {user.name} has been deactivated"}
+    logger.info(f"Admin hard-deleted member {user.name} ({member_id})")
+    return {"message": f"Member {user.name} has been deleted"}
 
 
 @router.post("/reset")

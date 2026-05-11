@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
+import { getUploadUrl } from "@/lib/uploads";
 import type { MemberSwipeStats } from "@/types";
 
 type SortField = "name" | "liked_count" | "rejected_count";
@@ -146,7 +147,7 @@ export default function AdminDashboard() {
                   <div className="admin-avatar">
                     {m.profile_image ? (
                       <img
-                        src={`${apiBase}/uploads/${m.profile_image}`}
+                        src={getUploadUrl(m.profile_image)}
                         alt={m.name}
                         style={{ width: "100%", height: "100%", objectFit: "cover" }}
                       />

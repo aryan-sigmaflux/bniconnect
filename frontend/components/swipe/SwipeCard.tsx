@@ -1,6 +1,7 @@
 "use client";
 
 import type { UserCard } from "@/types";
+import { getUploadUrl } from "@/lib/uploads";
 
 interface SwipeCardProps {
   user: UserCard;
@@ -22,7 +23,7 @@ export default function SwipeCard({
   overlayOpacity = 0,
 }: SwipeCardProps) {
   const imgSrc = user.profile_image
-    ? `${process.env.NEXT_PUBLIC_API_URL || "/api/v1"}/../uploads/${user.profile_image}`
+    ? getUploadUrl(user.profile_image)
     : null;
 
   return (

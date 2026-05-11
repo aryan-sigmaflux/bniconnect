@@ -1,6 +1,7 @@
 "use client";
 
 import type { SentSwipeItem } from "@/types";
+import { getUploadUrl } from "@/lib/uploads";
 
 interface SentListProps {
   sent: SentSwipeItem[];
@@ -26,7 +27,7 @@ export default function SentList({ sent, matchedIds }: SentListProps) {
             <div className="likes-card-img">
               {item.user.profile_image ? (
                 <img
-                  src={`${process.env.NEXT_PUBLIC_API_URL || "/api/v1"}/../uploads/${item.user.profile_image}`}
+                  src={getUploadUrl(item.user.profile_image)}
                   alt={item.user.name}
                 />
               ) : (

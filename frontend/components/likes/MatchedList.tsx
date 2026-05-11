@@ -1,6 +1,7 @@
 "use client";
 
 import type { MatchItem } from "@/types";
+import { getUploadUrl } from "@/lib/uploads";
 
 interface MatchedListProps {
   matches: MatchItem[];
@@ -23,7 +24,7 @@ export default function MatchedList({ matches }: MatchedListProps) {
           <div className="likes-card-img">
             {item.user.profile_image ? (
               <img
-                src={`${process.env.NEXT_PUBLIC_API_URL || "/api/v1"}/../uploads/${item.user.profile_image}`}
+                src={getUploadUrl(item.user.profile_image)}
                 alt={item.user.name}
               />
             ) : (

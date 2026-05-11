@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import type { AdminMemberResponse } from "@/types";
+import { getUploadUrl } from "@/lib/uploads";
 
 interface MemberTableProps {
   members: AdminMemberResponse[];
-  onDeactivate: (id: string, name: string) => void;
+  onDelete: (id: string, name: string) => void;
 }
 
-export default function MemberTable({ members, onDeactivate }: MemberTableProps) {
+export default function MemberTable({ members, onDelete }: MemberTableProps) {
   return (
     <div className="admin-table-wrap">
       <table className="admin-table">
@@ -29,7 +30,7 @@ export default function MemberTable({ members, onDeactivate }: MemberTableProps)
                 <div className="admin-avatar">
                   {m.profile_image ? (
                     <img
-                      src={`${process.env.NEXT_PUBLIC_API_URL || "/api/v1"}/../uploads/${m.profile_image}`}
+                      src={getUploadUrl(m.profile_image)}
                       alt={m.name}
                     />
                   ) : (
@@ -53,12 +54,13 @@ export default function MemberTable({ members, onDeactivate }: MemberTableProps)
                   <Link href={`/admin/members/${m.id}`} className="action-btn edit">
                     Edit
                   </Link>
-                  {m.is_active && !m.is_admin && (
+                  {!m.is_admin && (
                     <button
-                      className="action-btn deactivate"
-                      onClick={() => onDeactivate(m.id, m.name)}
+                      className="action-btn delete"
+                      style={{ color: "var(--primary)", fontWeight: "600" }}
+                      onClick={() => onDelete(m.id, m.name)}
                     >
-                      Deactivate
+                      Delete
                     </button>
                   )}
                 </div>

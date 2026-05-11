@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import api from "@/lib/api";
+import { getUploadUrl } from "@/lib/uploads";
 import type { MemberSwipeDetail, SwipedUserInfo } from "@/types";
 
 type Tab = "liked" | "rejected" | "not_swiped";
@@ -70,7 +71,7 @@ export default function SwipeDetailsPage() {
         <div className="detail-avatar">
           {data.member.profile_image ? (
             <img
-              src={`${apiBase}/uploads/${data.member.profile_image}`}
+              src={getUploadUrl(data.member.profile_image)}
               alt={data.member.name}
             />
           ) : (
@@ -119,7 +120,7 @@ export default function SwipeDetailsPage() {
               <div className="detail-card-avatar">
                 {u.profile_image ? (
                   <img
-                    src={`${apiBase}/uploads/${u.profile_image}`}
+                    src={getUploadUrl(u.profile_image)}
                     alt={u.name}
                   />
                 ) : (

@@ -23,13 +23,13 @@ export default function MembersPage() {
 
   useEffect(() => { fetchMembers(); }, [fetchMembers]);
 
-  const handleDeactivate = async (id: string, name: string) => {
-    if (!confirm(`Deactivate ${name}? They will no longer appear in swipe stacks.`)) return;
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Permanently delete ${name}? This action cannot be undone.`)) return;
     try {
       await api.delete(`/admin/members/${id}`);
       fetchMembers();
     } catch (err) {
-      console.error("Deactivate failed:", err);
+      console.error("Delete failed:", err);
     }
   };
 
@@ -45,7 +45,7 @@ export default function MembersPage() {
   return (
     <div className="admin-page">
       <h1 className="admin-page-title">Members ({members.length})</h1>
-      <MemberTable members={members} onDeactivate={handleDeactivate} />
+      <MemberTable members={members} onDelete={handleDelete} />
     </div>
   );
 }

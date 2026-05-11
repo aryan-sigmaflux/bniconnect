@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { getUploadUrl } from "@/lib/uploads";
 import type { UserCard } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -32,7 +33,7 @@ export default function MatchAnimation({ user, onDismiss }: MatchAnimationProps)
           <div className="match-avatar-wrapper">
             <div className="match-avatar avatar-left">
               {currentUser?.profile_image ? (
-                <img src={getImgSrc(currentUser.profile_image)!} alt="You" />
+                <img src={getUploadUrl(currentUser.profile_image)!} alt="You" />
               ) : (
                 <span>{currentUser?.name?.charAt(0) || "U"}</span>
               )}
@@ -43,7 +44,7 @@ export default function MatchAnimation({ user, onDismiss }: MatchAnimationProps)
           <div className="match-avatar-wrapper">
             <div className="match-avatar avatar-right">
               {user.profile_image ? (
-                <img src={getImgSrc(user.profile_image)!} alt={user.name} />
+                <img src={getUploadUrl(user.profile_image)!} alt={user.name} />
               ) : (
                 <span>{user.name.charAt(0)}</span>
               )}
