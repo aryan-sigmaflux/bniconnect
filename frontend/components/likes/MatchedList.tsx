@@ -31,7 +31,6 @@ export default function MatchedList({ matches }: MatchedListProps) {
                 {item.user.name.charAt(0)}
               </div>
             )}
-            <span className="likes-match-icon">💛</span>
           </div>
           <div className="likes-card-info">
             <h3>{item.user.name}</h3>

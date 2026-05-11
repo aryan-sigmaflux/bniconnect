@@ -71,12 +71,12 @@ export default function SwipeCard({
       {/* Swipe overlays */}
       {overlayDirection === "right" && (
         <div className="swipe-overlay swipe-overlay-like" style={{ opacity: overlayOpacity }}>
-          <span>LIKE</span>
+          <span>1-2-1</span>
         </div>
       )}
       {overlayDirection === "left" && (
         <div className="swipe-overlay swipe-overlay-nope" style={{ opacity: overlayOpacity }}>
-          <span>NOPE</span>
+          <span>NOT NOW</span>
         </div>
       )}
 

@@ -178,7 +178,8 @@ async def add_member(
             detail="A member with this phone number already exists",
         )
 
-    is_admin = phone == settings.ADMIN_NUMBER
+    admin_numbers = [p.strip() for p in settings.ADMIN_NUMBER.split(",") if p.strip()]
+    is_admin = phone in admin_numbers
     user = User(
         phone=phone,
         name=body.name,
@@ -252,7 +253,8 @@ async def bulk_add_members(
             errors.append(f"Row {row_num}: Phone {phone} already exists")
             continue
             
-        is_admin = phone == settings.ADMIN_NUMBER
+        admin_numbers = [p.strip() for p in settings.ADMIN_NUMBER.split(",") if p.strip()]
+        is_admin = phone in admin_numbers
         user = User(
             phone=phone,
             name=name,

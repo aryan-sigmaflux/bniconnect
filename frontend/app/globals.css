@@ -1000,6 +1000,23 @@ input {
   color: var(--text-secondary);
 }
 
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  background: var(--primary);
+  color: #fdfdfd;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-left: 6px;
+  vertical-align: middle;
+  font-family: 'Outfit', 'Inter', sans-serif;
+  box-shadow: 0 2px 8px rgba(36, 20, 22, 0.15);
+}
+
 /* ── Swipe Detail Page ── */
 .detail-back-btn {
   display: inline-flex;
@@ -1417,6 +1434,7 @@ input {
 
 /* ── Mobile Responsive ── */
 @media (max-width: 768px) {
+
   /* Hide the desktop sidebar */
   .admin-sidebar {
     display: none !important;

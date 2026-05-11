@@ -64,6 +64,12 @@ def _is_bypass_phone(phone: str) -> bool:
     return phone in bypass_phones
 
 
+def _is_admin_phone(phone: str) -> bool:
+    """Check if a phone number is in the admin list."""
+    admin_numbers = [p.strip() for p in settings.ADMIN_NUMBER.split(",") if p.strip()]
+    return phone in admin_numbers
+
+
 async def verify_otp(db: AsyncSession, phone: str, otp_code: str) -> bool:
     """
     Verify the OTP for a phone number.
@@ -106,13 +112,14 @@ async def verify_otp(db: AsyncSession, phone: str, otp_code: str) -> bool:
 async def get_or_create_user(db: AsyncSession, phone: str) -> User:
     """
     Find existing user by phone, or create a new one.
-    Sets is_admin if phone matches ADMIN_NUMBER.
+    Sets is_admin if phone is in ADMIN_NUMBER list.
     """
     result = await db.execute(select(User).where(User.phone == phone))
     user = result.scalar_one_or_none()
 
+    is_admin = _is_admin_phone(phone)
+
     if user is None:
-        is_admin = phone == settings.ADMIN_NUMBER
         user = User(
             phone=phone,
             name="New Member",  # Will be updated by admin
@@ -123,8 +130,8 @@ async def get_or_create_user(db: AsyncSession, phone: str) -> User:
         await db.refresh(user)
         logger.info(f"Created new user for phone {phone[-4:]} (admin={is_admin})")
     else:
-        # Update admin status if ADMIN_NUMBER changed
-        if phone == settings.ADMIN_NUMBER and not user.is_admin:
+        # Update admin status if ADMIN_NUMBER list changed
+        if is_admin and not user.is_admin:
             user.is_admin = True
             await db.flush()
 

@@ -38,7 +38,7 @@ export default function MemberTable({ members, onDeactivate }: MemberTableProps)
                 </div>
               </td>
               <td className="admin-td-name">
-                {m.name}
+                {m.name}{" "}
                 {m.is_admin && <span className="admin-badge">Admin</span>}
               </td>
               <td>{m.phone}</td>

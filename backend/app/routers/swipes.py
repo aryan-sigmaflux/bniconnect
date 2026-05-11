@@ -74,14 +74,23 @@ async def record_swipe(
 
     await db.commit()
 
-    # If matched, send WhatsApp notification in background
+    # If matched, send WhatsApp notification to BOTH users in background
     if swipe_result["matched"]:
+        # Notify the other user (target) about the match
         background_tasks.add_task(
             whatsapp_service.send_match_notification,
             target_user.phone,
             target_user.name,
             current_user.name,
             current_user.phone,
+        )
+        # Notify the current user (swiper) about the match
+        background_tasks.add_task(
+            whatsapp_service.send_match_notification,
+            current_user.phone,
+            current_user.name,
+            target_user.name,
+            target_user.phone,
         )
 
     matched_user = None
