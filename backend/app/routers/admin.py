@@ -138,6 +138,14 @@ async def member_swipe_details(
     rejected_ids = {s.swiped_id for s in swipes if s.direction == SwipeDirection.REJECT}
     swiped_ids = liked_ids | rejected_ids
 
+    # Fetch all swipes targeting this member (to find liked_by)
+    swiped_by_result = await db.execute(
+        select(Swipe).where(Swipe.swiped_id == uid, Swipe.direction == SwipeDirection.LIKE)
+    )
+    liked_by_ids = {s.swiper_id for s in swiped_by_result.scalars().all()}
+    
+    match_ids = liked_ids & liked_by_ids
+
     # Fetch all other active users
     all_result = await db.execute(
         select(User).where(User.is_active == True, User.id != uid)
@@ -155,12 +163,16 @@ async def member_swipe_details(
     liked = [to_info(u) for u in all_users if u.id in liked_ids]
     rejected = [to_info(u) for u in all_users if u.id in rejected_ids]
     not_swiped = [to_info(u) for u in all_users if u.id not in swiped_ids]
+    liked_by = [to_info(u) for u in all_users if u.id in liked_by_ids]
+    matches = [to_info(u) for u in all_users if u.id in match_ids]
 
     return MemberSwipeDetail(
         member=to_info(member),
         liked=liked,
         rejected=rejected,
         not_swiped=not_swiped,
+        liked_by=liked_by,
+        matches=matches,
     )
 
 

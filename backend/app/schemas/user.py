@@ -95,3 +95,5 @@ class MemberSwipeDetail(BaseModel):
     liked: list[SwipedUserInfo] = []
     rejected: list[SwipedUserInfo] = []
     not_swiped: list[SwipedUserInfo] = []
+    liked_by: list[SwipedUserInfo] = []
+    matches: list[SwipedUserInfo] = []

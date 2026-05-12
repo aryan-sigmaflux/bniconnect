@@ -153,5 +153,7 @@ export interface MemberSwipeDetail {
   liked: SwipedUserInfo[];
   rejected: SwipedUserInfo[];
   not_swiped: SwipedUserInfo[];
+  liked_by: SwipedUserInfo[];
+  matches: SwipedUserInfo[];
 }
 
