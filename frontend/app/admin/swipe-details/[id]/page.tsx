@@ -50,14 +50,14 @@ export default function SwipeDetailsPage() {
   }
 
   const tabs: { key: Tab; label: string; count: number; color: string }[] = [
-    { key: "matches", label: "Matches", count: data.matches.length, color: "#eab308" },
-    { key: "liked_by", label: "Liked By", count: data.liked_by.length, color: "#3b82f6" },
-    { key: "liked", label: "Liked", count: data.liked.length, color: "var(--primary)" },
-    { key: "rejected", label: "Rejected", count: data.rejected.length, color: "#666" },
-    { key: "not_swiped", label: "Not Swiped", count: data.not_swiped.length, color: "#b0b0b0" },
+    { key: "matches", label: "Matches", count: (data.matches || []).length, color: "#eab308" },
+    { key: "liked_by", label: "Liked By", count: (data.liked_by || []).length, color: "#3b82f6" },
+    { key: "liked", label: "Liked", count: (data.liked || []).length, color: "var(--primary)" },
+    { key: "rejected", label: "Rejected", count: (data.rejected || []).length, color: "#666" },
+    { key: "not_swiped", label: "Not Swiped", count: (data.not_swiped || []).length, color: "#b0b0b0" },
   ];
 
-  const currentList: SwipedUserInfo[] = data[tab];
+  const currentList: SwipedUserInfo[] = data[tab] || [];
 
   return (
     <div className="admin-page">
