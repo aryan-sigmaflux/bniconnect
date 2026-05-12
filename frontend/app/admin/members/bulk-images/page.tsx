@@ -35,7 +35,8 @@ export default function BulkImagesPage() {
     formData.append("file", file);
 
     try {
-      const response = await fetch("/api/v1/admin/members/bulk-images", {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+      const response = await fetch(`${apiBase}/admin/members/bulk-images`, {
         method: "POST",
         body: formData,
         headers: {
