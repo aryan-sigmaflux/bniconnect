@@ -7,14 +7,27 @@ import { getUploadUrl } from "@/lib/uploads";
 interface MemberTableProps {
   members: AdminMemberResponse[];
   onDelete: (id: string, name: string) => void;
+  selectedIds?: Set<string>;
+  onSelectToggle?: (id: string) => void;
+  onSelectAll?: (checked: boolean) => void;
 }
 
-export default function MemberTable({ members, onDelete }: MemberTableProps) {
+export default function MemberTable({ members, onDelete, selectedIds = new Set(), onSelectToggle, onSelectAll }: MemberTableProps) {
+  const deletableMembers = members.filter(m => !m.is_admin);
+  const allSelected = deletableMembers.length > 0 && selectedIds.size === deletableMembers.length;
   return (
     <div className="admin-table-wrap">
       <table className="admin-table">
         <thead>
           <tr>
+            <th style={{ width: "40px", textAlign: "center" }}>
+              <input 
+                type="checkbox" 
+                checked={allSelected}
+                onChange={(e) => onSelectAll?.(e.target.checked)}
+                className="admin-checkbox"
+              />
+            </th>
             <th>Photo</th>
             <th>Name</th>
             <th>Phone</th>
@@ -26,6 +39,16 @@ export default function MemberTable({ members, onDelete }: MemberTableProps) {
         <tbody>
           {members.map((m) => (
             <tr key={m.id} className={!m.is_active ? "inactive-row" : ""}>
+              <td style={{ textAlign: "center" }}>
+                {!m.is_admin && (
+                  <input 
+                    type="checkbox" 
+                    checked={selectedIds.has(m.id)}
+                    onChange={() => onSelectToggle?.(m.id)}
+                    className="admin-checkbox"
+                  />
+                )}
+              </td>
               <td>
                 <div className="admin-avatar">
                   {m.profile_image ? (

@@ -12,6 +12,8 @@ import tempfile
 from pathlib import Path
 from typing import Annotated
 
+from pydantic import BaseModel
+
 from rapidfuzz import fuzz, process
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
@@ -480,6 +482,47 @@ async def delete_member(
 
     logger.info(f"Admin hard-deleted member {user.name} ({member_id})")
     return {"message": f"Member {user.name} has been deleted"}
+
+
+class BulkDeleteRequest(BaseModel):
+    member_ids: list[str]
+
+@router.post("/members/bulk-delete")
+async def bulk_delete_members(
+    body: BulkDeleteRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Hard-delete multiple members."""
+    import uuid as _uuid
+
+    if not body.member_ids:
+        return {"message": "No members provided for deletion."}
+
+    uids = []
+    for mid in body.member_ids:
+        try:
+            uids.append(_uuid.UUID(mid))
+        except ValueError:
+            continue
+
+    if not uids:
+        return {"message": "No valid member IDs provided."}
+
+    # Delete related swipes first
+    await db.execute(delete(Swipe).where((Swipe.swiper_id.in_(uids)) | (Swipe.swiped_id.in_(uids))))
+    
+    # Delete the users
+    await db.execute(delete(User).where(User.id.in_(uids)))
+    await db.flush()
+
+    for uid in uids:
+        await cache_service.remove_user_from_liked_me(str(uid))
+    await cache_service.flush_all_stacks_and_likes()
+
+    await db.commit()
+
+    logger.info(f"Admin bulk hard-deleted {len(uids)} members")
+    return {"message": f"Successfully deleted {len(uids)} members."}
 
 
 @router.post("/reset")
