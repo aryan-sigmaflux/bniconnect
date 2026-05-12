@@ -8,11 +8,7 @@ export default function TopBar() {
   return (
     <header className="topbar">
       <div className="topbar-inner">
-        <button className="topbar-logout" aria-label="Back" title="Back">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </button>
+        <div className="topbar-logout" style={{ visibility: "hidden" }} aria-hidden="true" />
         <div className="topbar-logo" style={{ alignItems: 'center' }}>
           <h1 className="topbar-title">Sigmaconnect</h1>
           <span className="topbar-subtitle">Discovering members</span>
